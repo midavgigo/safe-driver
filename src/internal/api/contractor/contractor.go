@@ -1,19 +1,23 @@
 package contractor
 
-import "app/internal/api"
+import (
+	"app/internal/api"
+	"log"
+)
 
 func DriverStatus(model DriverStatusModel) {
-
+	log.Println("Get model", model)
 }
 
-func TakeOrder(queue api.OrderQueue) {
-
+func AcceptOrder(request api.OrderRequest) {
+	log.Println("Get request", request)
 }
 
-func DriverArrive(queue api.OrderQueue) {
-
+func DriverArrived(request api.OrderRequest) {
+	log.Println("Get request", request)
 }
 
-func ChangeOrderStatus(queue api.OrderQueue, model NewOrderStatusModel) {
-
+func ChangeOrderStatus(request api.OrderRequest, model NewOrderStatusModel) {
+	log.Println("Get model", model)
+	log.Println("Get request", request)
 }

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="api_order_post" class="form">
+        <p>POST /api/order</p>
+        <input type="text" class="passenger_id" placeholder="passenger_id">
+        <input type="text" class="address_from" placeholder="address_from">
+        <input type="text" class="address_to" placeholder="address_to">
+        <input type="text" class="tariff" placeholder="tariff">
+        <input type="text" class="selected_services" placeholder="selected_services">
+        <input type="text" class="comment" placeholder="comment">
+        <button onclick="send_api_order_post(document.getElementById('api_order_post'));">
+            Send
+        </button>
+    </div>
+    <div id="api_order_get" class="form">
+        <p>GET /api/order/{order_id}</p>
+        <input type="text" class="order_id" placeholder="order_id">
+        <button onclick="get_order_info(document.getElementById('api_order_get'));">
+            Send
+        </button>
+    </div>
+    <div id="api_order_cancel_post" class="form">
+        <p>POST /api/order/{order_id}/cancel</p>
+        <input type="text" class="order_id" placeholder="order_id">
+        <button onclick="send_order_cancel(document.getElementById('api_order_cancel_post'));">
+            Send
+        </button>
+    </div>
+    <div id="api_driver_status_post" class="form">
+        <p>POST /api/driver/status</p>
+        <div>
+            <label for="is_available">is_available</label>
+            <input type="checkbox" class="is_available">
+        </div>
+        <input type="text" class="lat" placeholder="lat">
+        <input type="text" class="lng" placeholder="lng">
+        <button onclick="send_driver_status(document.getElementById('api_driver_status_post'));">
+            Send
+        </button>
+    </div>
+    <div id="api_order_accept_post" class="form">
+        <p>POST /api/order/{order_id}/accept</p>
+        <input type="text" class="order_id" placeholder="order_id">
+        <button onclick="accept_order(document.getElementById('api_order_accept_post'));">
+            Send
+        </button>
+    </div>
+    <div id="api_order_arrived_post" class="form">
+        <p>POST /api/order/{order_id}/arrived</p>
+        <input type="text" class="order_id" placeholder="order_id">
+        <button onclick="arrived_order(document.getElementById('api_order_arrived_post'));">
+            Send
+        </button>
+    </div>
+    <div id="api_order_status_post" class="form">
+        <p>POST /api/order/{order_id}/status</p>
+        <input type="text" class="order_id" placeholder="order_id">
+        <input type="text" class="status" placeholder="status">
+        <button onclick="update_order_status(document.getElementById('api_order_status_post'));">
+            Send
+        </button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

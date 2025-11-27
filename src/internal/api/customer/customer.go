@@ -1,15 +1,18 @@
 package customer
 
-import "app/internal/api"
+import (
+	"app/internal/api"
+	"log"
+)
 
 func MakeOrder(model MakeOrderModel) {
-
+	log.Println("Get model", model)
 }
 
-func StatusOrder(queue api.OrderQueue) {
-
+func StatusOrder(request api.OrderRequest) {
+	log.Println("Get request", request)
 }
 
-func CancelOrder(queue api.OrderQueue) {
-
+func CancelOrder(request api.OrderRequest) {
+	log.Println("Get request", request)
 }

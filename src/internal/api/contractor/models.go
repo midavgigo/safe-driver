@@ -1,10 +1,10 @@
 package contractor
 
 type DriverStatusModel struct {
-	is_available     bool
-	current_location []float32
+	IsAvailable     bool
+	CurrentLocation map[string]float64
 }
 
 type NewOrderStatusModel struct {
-	status string
+	Status string
 }

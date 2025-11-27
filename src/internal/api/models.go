@@ -1,5 +1,5 @@
 package api
 
-type OrderQueue struct {
-	order_id string
+type OrderRequest struct {
+	OrderId string
 }

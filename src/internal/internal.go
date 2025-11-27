@@ -12,6 +12,7 @@ func StartServer() *http.Server {
 	server := &http.Server{
 		Addr: host + ":" + port,
 	}
+	HandleFuncs()
 	go func() {
 		err := server.ListenAndServe()
 		if err != nil {
