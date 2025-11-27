@@ -1,4 +1,8 @@
 build:
-	sudo docker build -t opego .
+	sudo docker-compose build --no-cache
 run:
-	sudo docker run -p 8080:8080 --name opego -it --rm opego
+	sudo docker-compose up 
+stop:
+	sudo docker-compose down
+clear: 
+	sudo docker-compose down -v
