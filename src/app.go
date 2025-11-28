@@ -9,7 +9,11 @@ import (
 
 func main() {
 	log.Println("Starting server")
-	srv := internal.StartServer()
+	srv, err := internal.StartServer()
+	if err != nil {
+		log.Println("Error in starting server", err)
+		return
+	}
 	log.Println("Server started")
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)

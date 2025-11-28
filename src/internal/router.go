@@ -4,6 +4,7 @@ import (
 	"app/internal/api"
 	"app/internal/api/contractor"
 	"app/internal/api/customer"
+	"app/internal/api/dbentry"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -18,7 +19,7 @@ func unsafe_options(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Headers", "content-type")
 	w.WriteHeader(http.StatusOK)
 }
-func ApiOrder(w http.ResponseWriter, r *http.Request) {
+func ApiOrder(w http.ResponseWriter, r *http.Request, dbman dbentry.DBManager) {
 	log.Println("Get request for /api/order. Method: ", r.Method)
 	switch r.Method {
 	case http.MethodPost:
@@ -43,38 +44,54 @@ func ApiOrder(w http.ResponseWriter, r *http.Request) {
 			SelectedServices: services,
 			Comment:          decoded["comment"].(string),
 		}
-		customer.MakeOrder(model)
-		fmt.Fprintln(w, "Круто, спасибо")
+		id, err := customer.MakeOrder(model, dbman)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Fprintf(w, "New order with id: %d\n", id)
 	case http.MethodOptions:
 		unsafe_options(w, r)
 	}
 }
 
-func ApiOrderStatus(w http.ResponseWriter, r *http.Request) {
+func ApiOrderStatus(w http.ResponseWriter, r *http.Request, dbman dbentry.DBManager) {
 	log.Println("Get request for /api/order/{order_id}. Method: ", r.Method)
 	switch r.Method {
 	case http.MethodGet:
-		customer.StatusOrder(
+		status, err := customer.StatusOrder(
 			api.OrderRequest{
 				OrderId: strings.Split(r.URL.Path, "/")[3],
 			},
+			dbman,
 		)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Fprintf(w, "Status of order: %s\n", status)
 	}
 }
 
-func ApiOrderCancel(w http.ResponseWriter, r *http.Request) {
+func ApiOrderCancel(w http.ResponseWriter, r *http.Request, dbman dbentry.DBManager) {
 	log.Println("Get request for /api/order/{order_id}/cancel. Method: ", r.Method)
 	switch r.Method {
 	case http.MethodPost:
-		customer.CancelOrder(
+		err := customer.CancelOrder(
 			api.OrderRequest{
 				OrderId: strings.Split(r.URL.Path, "/")[3],
 			},
+			dbman,
 		)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Fprintf(w, "Order successfully canceled")
 	}
 }
 
-func ApiDriverStatus(w http.ResponseWriter, r *http.Request) {
+func ApiDriverStatus(w http.ResponseWriter, r *http.Request, dbman dbentry.DBManager) {
 	log.Println("Get request for /api/driver/status. Method: ", r.Method)
 	switch r.Method {
 	case http.MethodPost:
@@ -100,7 +117,7 @@ func ApiDriverStatus(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ApiOrderAccept(w http.ResponseWriter, r *http.Request) {
+func ApiOrderAccept(w http.ResponseWriter, r *http.Request, dbman dbentry.DBManager) {
 	log.Println("Get request for /api/order/{order_id}/accept. Method: ", r.Method)
 	switch r.Method {
 	case http.MethodPost:
@@ -112,7 +129,7 @@ func ApiOrderAccept(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ApiOrderArrived(w http.ResponseWriter, r *http.Request) {
+func ApiOrderArrived(w http.ResponseWriter, r *http.Request, dbman dbentry.DBManager) {
 	log.Println("Get request for /api/order/{order_id}/arrived. Method: ", r.Method)
 	switch r.Method {
 	case http.MethodPost:
@@ -124,7 +141,7 @@ func ApiOrderArrived(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ApiOrderNewStatus(w http.ResponseWriter, r *http.Request) {
+func ApiOrderNewStatus(w http.ResponseWriter, r *http.Request, dbman dbentry.DBManager) {
 	log.Println("Get request for /api/order/{order_id}/accept. Method: ", r.Method)
 	switch r.Method {
 	case http.MethodPost:

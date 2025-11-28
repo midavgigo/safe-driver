@@ -2,46 +2,71 @@ package customer
 
 import (
 	"app/internal/api"
-	"database/sql"
+	"app/internal/api/dbentry"
+	db "app/internal/api/dbentry"
+	"app/utils"
+	"encoding/json"
 	"log"
-
-	_ "github.com/lib/pq"
+	"strconv"
 )
 
-func MakeOrder(model MakeOrderModel) {
-	log.Println("Get model", model)
-	connStr := "postgresql://doc:password@db:5432/db?sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Println("Error in opening db", err)
-		return
-	}
-	defer db.Close()
-	rows, err := db.Query("SELECT MakeOrder($1, $2, $3, $4);",
+func print_model(text string, model any) {
+	str, _ := json.Marshal(model)
+	log.Println(text, string(str))
+}
+
+func MakeOrder(model MakeOrderModel, dbman db.DBManager) (int, error) {
+	print_model("Get model", model)
+	id, err := dbentry.MakeOrder(
+		dbman,
 		model.AddressFrom,
 		model.AddressTo,
 		model.Tariff,
 		model.PassengerId,
 	)
 	if err != nil {
-		log.Println("Error in query db", err)
-		return
-	}
-	if rows.Next() {
-		var id int
-		err := rows.Scan(&id)
-		if err != nil {
-			log.Println("Error in scaning rows", err)
-			return
+		return 0, utils.ReasonableError{
+			Reason:  err,
+			Message: "Error in making order with current model",
 		}
-		log.Println("New order with id", id)
 	}
+	err = db.SetOrderStatus(dbman, id, db.SEARCHING)
+	if err != nil {
+		return 0, utils.ReasonableError{
+			Reason:  err,
+			Message: "Error in setting status of order " + strconv.Itoa(id),
+		}
+	}
+	return id, nil
 }
 
-func StatusOrder(request api.OrderRequest) {
-	log.Println("Get request", request)
+func StatusOrder(request api.OrderRequest, dbman db.DBManager) (string, error) {
+	print_model("Get request", request)
+	order_id, err := strconv.ParseInt(request.OrderId, 10, 64)
+	if err != nil {
+		return "", utils.ReasonableError{
+			Reason:  err,
+			Message: "Error in parsing order_id to number",
+		}
+	}
+	str, err := dbentry.GetOrderStatusName(dbman, int(order_id))
+	if err != nil {
+		return "", utils.ReasonableError{
+			Reason:  err,
+			Message: "Error in getting status of order " + request.OrderId,
+		}
+	}
+	return str, nil
 }
 
-func CancelOrder(request api.OrderRequest) {
-	log.Println("Get request", request)
+func CancelOrder(request api.OrderRequest, dbman dbentry.DBManager) error {
+	print_model("Get request", request)
+	order_id, err := strconv.ParseInt(request.OrderId, 10, 64)
+	if err != nil {
+		return utils.ReasonableError{
+			Reason:  err,
+			Message: "Error in parsing order_id to number",
+		}
+	}
+	return dbentry.CancelOrder(dbman, int(order_id))
 }
