@@ -129,11 +129,17 @@ func ApiOrderAccept(w http.ResponseWriter, r *http.Request, dbman dbentry.DBMana
 	log.Println("Get request for /api/order/{order_id}/accept. Method: ", r.Method)
 	switch r.Method {
 	case http.MethodPost:
-		contractor.AcceptOrder(
+		err := contractor.AcceptOrder(
 			api.OrderRequest{
 				OrderId: strings.Split(r.URL.Path, "/")[3],
 			},
+			dbman,
 		)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Fprintln(w, "Order accepted")
 	}
 }
 
@@ -141,11 +147,17 @@ func ApiOrderArrived(w http.ResponseWriter, r *http.Request, dbman dbentry.DBMan
 	log.Println("Get request for /api/order/{order_id}/arrived. Method: ", r.Method)
 	switch r.Method {
 	case http.MethodPost:
-		contractor.DriverArrived(
+		err := contractor.DriverArrived(
 			api.OrderRequest{
 				OrderId: strings.Split(r.URL.Path, "/")[3],
 			},
+			dbman,
 		)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Fprintln(w, "Driver arrived")
 	}
 }
 
@@ -161,14 +173,20 @@ func ApiOrderNewStatus(w http.ResponseWriter, r *http.Request, dbman dbentry.DBM
 			log.Println("Error in decoding body /api/order")
 			return
 		}
-		contractor.ChangeOrderStatus(
+		err = contractor.ChangeOrderStatus(
 			api.OrderRequest{
 				OrderId: strings.Split(r.URL.Path, "/")[3],
 			},
 			contractor.NewOrderStatusModel{
 				Status: decoded["status"].(string),
 			},
+			dbman,
 		)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Fprintln(w, "Order status changed")
 	case http.MethodOptions:
 		unsafe_options(w, r)
 	}

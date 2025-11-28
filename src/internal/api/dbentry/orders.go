@@ -46,7 +46,7 @@ func GetOrderStatusName(dbman DBManager, id int) (string, error) {
 }
 
 func SetOrderStatus(dbman DBManager, id int, status Status) error {
-	res, err := dbman.Exec("UPDATE Orders SET CurrentStatus = 1 WHERE Id = $1;", id)
+	res, err := dbman.Exec("UPDATE Orders SET CurrentStatus = $1 WHERE Id = $2;", int(status), id)
 	if err != nil {
 		return utils.ReasonableError{
 			Reason:  err,
@@ -117,4 +117,55 @@ func CancelOrder(dbman DBManager, id int) error {
 		}
 	}
 	return nil
+}
+
+func AcceptOrder(dbman DBManager, order_id int, driver_id int) error {
+	res, err := dbman.Exec("UPDATE Orders SET Driver = $1, CurrentStatus = 2 WHERE Id = $2", driver_id, order_id)
+	if err != nil {
+		return utils.ReasonableError{
+			Reason:  err,
+			Message: "Error in accepting order",
+		}
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return utils.ReasonableError{
+			Reason:  err,
+			Message: "Error in gettin number of affected rows",
+		}
+	}
+	if n < 1 {
+		return utils.ReasonableError{
+			Reason:  err,
+			Message: "Order " + strconv.Itoa(order_id) + " not accepting by driver " + strconv.Itoa(driver_id) + " check ids",
+		}
+	}
+	return nil
+}
+
+func GetOrderStatusId(dbman DBManager, name string) (Status, error) {
+	rows, err := dbman.Query("SELECT GetOrderStatusId($1);", name)
+	if err != nil {
+		return 0, utils.ReasonableError{
+			Reason:  err,
+			Message: "Error in getting status id",
+		}
+	}
+	var id Status
+	if rows.Next() {
+		err := rows.Scan(&id)
+		if err != nil {
+			return 0, utils.ReasonableError{
+				Reason:  err,
+				Message: "Error in scanning rows",
+			}
+		}
+		log.Println("Status with id", id)
+	} else {
+		return 0, utils.ReasonableError{
+			Reason:  nil,
+			Message: "Can't get id of status",
+		}
+	}
+	return id, nil
 }

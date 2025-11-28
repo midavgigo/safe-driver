@@ -117,8 +117,26 @@ BEGIN
         FROM Orders 
         WHERE Id = pId;
     ELSE
-        RAISE EXCEPTION 'Order is in progress or has already been completed';
+        RAISE EXCEPTION 'Order is canceled, in progress or has already been completed';
     END IF;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION GetOrderStatusId(
+    pName VARCHAR(30)
+)
+RETURNS INTEGER
+AS $$
+DECLARE 
+    id INTEGER;
+BEGIN
+    SELECT os.Id 
+    INTO id
+    FROM OrderStatuses as os
+    WHERE Name = pName;
+    RETURN id;
 END;
 $$
 LANGUAGE plpgsql;
