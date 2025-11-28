@@ -60,7 +60,7 @@ func SetOrderStatus(dbman DBManager, id int, status Status) error {
 			Message: "Error in getting number of affected rows",
 		}
 	}
-	if n < 0 {
+	if n < 1 {
 		return utils.ReasonableError{
 			Reason:  nil,
 			Message: "Status of order with id=" + strconv.Itoa(id) + " not changed, check id",

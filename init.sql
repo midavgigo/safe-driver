@@ -32,7 +32,7 @@ INSERT INTO OrderStatuses VALUES (5, 'completed');
 
 CREATE TABLE Drivers(
     Id                  SERIAL PRIMARY KEY UNIQUE,
-    Available           BOOLEAN,
+    IsAvailable         BOOLEAN,
     Latitude            FLOAT,
     Longitude           FLOAT
 );

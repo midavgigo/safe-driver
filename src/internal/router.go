@@ -108,10 +108,18 @@ func ApiDriverStatus(w http.ResponseWriter, r *http.Request, dbman dbentry.DBMan
 		for k, v := range raw_map {
 			current_location[k], _ = strconv.ParseFloat(v.(string), 32)
 		}
-		contractor.DriverStatus(contractor.DriverStatusModel{
-			IsAvailable:     decoded["is_available"].(bool),
-			CurrentLocation: current_location,
-		})
+		err = contractor.DriverStatus(
+			contractor.DriverStatusModel{
+				IsAvailable:     decoded["is_available"].(bool),
+				CurrentLocation: current_location,
+			},
+			dbman,
+		)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Fprintln(w, "Driver status updated")
 	case http.MethodOptions:
 		unsafe_options(w, r)
 	}
