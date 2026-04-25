@@ -1,0 +1,374 @@
+{
+  "info": {
+    "_postman_id": "5d4701cb-7085-4212-9232-78c39fd9152f",
+    "name": "Test",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54303879",
+    "_collection_link": "https://go.postman.co/collection/54303879-5d4701cb-7085-4212-9232-78c39fd9152f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "Create Order",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "let requestBody = {",
+                  "    passenger_id: \"1\",",
+                  "    address_from: \"123 Main St\",",
+                  "    address_to: \"456 Elm St\",",
+                  "    tariff: pm.collectionVariables.get(\"TARIFS\").split(\";\")[0],",
+                  "    selected_services: pm.collectionVariables.get(\"SERVICES\").split(\";\"),",
+                  "    comment: \"Test Request\"",
+                  "};",
+                  "",
+                  "pm.request.body.update(JSON.stringify(requestBody));",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let order_id = parseInt(pm.response.text().split(\":\")[1]);",
+                  "pm.collectionVariables.set(\"order_id\", order_id);",
+                  "pm.collectionVariables.set(\"last_action\", \"create\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "passenger_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "5801b116-4cf2-49bf-966c-504704005909"
+                },
+                {
+                  "key": "address_from",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "d0d26701-d185-4ef0-b6d8-7d6a502e5e3d"
+                },
+                {
+                  "key": "address_to",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "13c03798-7ee3-4bfd-916e-be0e22fec805"
+                },
+                {
+                  "key": "tariff",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "db1a4a9c-6469-44f0-93a5-c984d19ad619"
+                },
+                {
+                  "key": "selected_services",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "79d7dc56-0cea-4ff9-b220-598129a206fa"
+                },
+                {
+                  "key": "comment",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "c3f58474-0080-4b1f-92c3-13238cc71c55"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/order",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "order"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.test(\"Check for getting order_id\", function(){",
+                  "    pm.expect(pm.collectionVariables.get(\"order_id\")).to.not.equal(\"00\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let result = pm.response.text().split(\":\")[1].slice(1);",
+                  "",
+                  "pm.test(\"Check status\", function(){",
+                  "    switch (pm.collectionVariables.get(\"last_action\")) {",
+                  "        case \"create\":",
+                  "            pm.expect(result).to.equal(\"searching\\n\");",
+                  "            break;",
+                  "        case \"cancel\":",
+                  "            pm.expect(result).to.equal(\"canceled\\n\");",
+                  "            break;",
+                  "        case \"accept\":",
+                  "            pm.expect(result).to.equal(\"driver_assigned\\n\");",
+                  "            break;",
+                  "        case \"arrived\":",
+                  "            pm.expect(result).to.equal(\"waiting_for_confirmation\\n\");",
+                  "            break;",
+                  "",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/order/{{order_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "order",
+                "{{order_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"last_action\", \"cancel\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.test(\"Check for getting order_id\", function(){",
+                  "    pm.expect(pm.collectionVariables.get(\"order_id\")).to.not.equal(\"00\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/order/{{order_id}}/cancel",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "order",
+                "{{order_id}}",
+                "cancel"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Accept Order",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.test(\"Check for getting order_id\", function(){",
+                  "    pm.expect(pm.collectionVariables.get(\"order_id\")).to.not.equal(\"00\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"last_action\", \"accept\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/order/{{order_id}}/accept",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "order",
+                "{{order_id}}",
+                "accept"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Arrived Order",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.test(\"Check for getting order_id\", function(){",
+                  "    pm.expect(pm.collectionVariables.get(\"order_id\")).to.not.equal(\"00\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"last_action\", \"arrived\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/order/{{order_id}}/arrived",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "order",
+                "{{order_id}}",
+                "arrived"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "SERVICES",
+      "value": "\"pet;luggage_rack;english\""
+    },
+    {
+      "key": "TARIFS",
+      "value": "\"econom;comfort;buisness\""
+    },
+    {
+      "key": "STATUSES",
+      "value": "\"pending;searching;driver_assigned;waiting_for_confirmation;in_progress;completed\""
+    },
+    {
+      "key": "order_id",
+      "value": ""
+    },
+    {
+      "key": "last_action",
+      "value": ""
+    }
+  ]
+}

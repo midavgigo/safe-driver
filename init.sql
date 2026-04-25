@@ -29,6 +29,7 @@ INSERT INTO OrderStatuses VALUES (2, 'driver_assigned');
 INSERT INTO OrderStatuses VALUES (3, 'waiting_for_confirmation');
 INSERT INTO OrderStatuses VALUES (4, 'in_progress');
 INSERT INTO OrderStatuses VALUES (5, 'completed');
+INSERT INTO OrderStatuses VALUES (6, 'canceled');
 
 CREATE TABLE Drivers(
     Id                  SERIAL PRIMARY KEY UNIQUE,
@@ -95,7 +96,8 @@ BEGIN
     INTO name
     FROM Orders as o
     INNER JOIN OrderStatuses AS os
-    ON o.CurrentStatus = os.Id;
+    ON o.CurrentStatus = os.Id
+    WHERE o.Id = pId;
     RETURN name;
 END;
 $$
@@ -113,8 +115,8 @@ BEGIN
     FROM Orders
     WHERE Id = pId;
     IF status = 0 OR status = 1 THEN
-        DELETE 
-        FROM Orders 
+        UPDATE Orders
+        SET CurrentStatus = 6
         WHERE Id = pId;
     ELSE
         RAISE EXCEPTION 'Order is canceled, in progress or has already been completed';
